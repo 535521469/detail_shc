@@ -51,6 +51,7 @@ class SellerInfo(Base):
     sellerphone = Column("SellerPhone", String,)
     enterdate = Column("EnterDate", Date,)
     sellerurl = Column("SellerUrl", Date,)
+    ctime = Column("ctime", DateTime,)
 
 class HTTPProxy(Base):
     

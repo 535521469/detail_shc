@@ -3,13 +3,13 @@
 Created on 2013-3-31
 @author: Administrator
 '''
+from crawler.shc.const import FetchConstant
 from crawler.shc.fe.const import FEConstant as const
 from crawler.shc.fe.item import SHCFEShopInfo, SHCFEShopInfoConstant as voconst
 from crawler.shc.fe.tools import detail_page_parse_4_save_2_db, \
     list_page_parse_4_remove_duplicate_detail_page_request, \
-    seller_page_parse_4_save_2_db, with_ip_proxy, check_blank_page, \
-    ignore_notice, check_award, with_ip_proxy_start_requests,\
-    check_verification_code
+    seller_page_parse_4_save_2_db, with_ip_proxy, check_blank_page, ignore_notice, \
+    check_award, with_ip_proxy_start_requests, check_verification_code
 from scrapy import log
 from scrapy.http.request import Request
 from scrapy.selector import HtmlXPathSelector
@@ -17,7 +17,6 @@ from scrapy.spider import BaseSpider
 from uuid import uuid4
 import datetime
 import os
-from crawler.shc.const import FetchConstant
 
 strptime = datetime.datetime.strptime
 #城市名称    标题信息    信息发布时间    价格    车型名称    联系人    联系人链接地址    联系方式图片文件名    车辆颜色    行驶里程    车辆排量    变速箱    上牌时间    商户名称    
@@ -411,6 +410,14 @@ class PersonPhoneSpider(FESpider):
         
 class CustomerShopSpider(FESpider):
     
+    name = u'CustomerShopSpider'
+    
+    @with_ip_proxy_start_requests
+    def start_requests(self):
+        sis = self.settings[FetchConstant.SELLER_LIST]
+        for si in sis:
+#            yield Request(u'http://support.58.com/firewall/valid/1699062759.do?namespace=infodetailweb&url=http://sy.58.com/ershouche/13769827520650x.shtml', self.parse, cookies={FetchConstant.CarInfo:ci})
+            yield Request(si.sellerurl, self.parse, cookies={FetchConstant.SellerInfo:si})
     
     @check_blank_page
     @with_ip_proxy

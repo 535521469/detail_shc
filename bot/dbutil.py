@@ -4,7 +4,7 @@ Created on 2013-4-22
 @author: Administrator
 '''
 from bot.config import configdata
-from bot.item import CarInfo
+from bot.item import CarInfo, SellerInfo
 from const import FetchConst
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import sessionmaker
@@ -27,10 +27,20 @@ def get_unfetched_carinfo():
 
     fs = FetchSession()
     try:
-        cis = fs.query(CarInfo).filter(CarInfo.statustype == None).order_by(CarInfo.ctime).all()
+        cis = fs.query(CarInfo).filter(CarInfo.statustype == None).order_by(CarInfo.ctime).limit(500).all()
+    except Exception as e:
+        raise e
+    finally:fs.close()
+    
+    return cis
+
+def get_unfetched_seller():
+
+    fs = FetchSession()
+    try:
+        cis = fs.query(SellerInfo).filter(SellerInfo.enterdate == None).order_by(SellerInfo.ctime).limit(500).all()
     except Exception as e:
         raise e
     finally:fs.close()
     
     return cis[:500]
-        

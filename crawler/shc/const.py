@@ -37,7 +37,10 @@ class FetchConstant(FetchConst):
 
     MULTI = u'multi'
     DETAIL_LIST = u'DETAIL_LIST'
+    SELLER_LIST = u'SELLER_LIST'
+    
     CarInfo = u'carinfo'
+    SellerInfo = u'sellerinfo'
     
     PROXY_VALID_TIME = u"proxy_valid_time"
     
