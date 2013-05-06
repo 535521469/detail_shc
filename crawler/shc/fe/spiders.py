@@ -9,7 +9,8 @@ from crawler.shc.fe.item import SHCFEShopInfo, SHCFEShopInfoConstant as voconst
 from crawler.shc.fe.tools import detail_page_parse_4_save_2_db, \
     list_page_parse_4_remove_duplicate_detail_page_request, \
     seller_page_parse_4_save_2_db, with_ip_proxy, check_blank_page, ignore_notice, \
-    check_award, with_ip_proxy_start_requests, check_verification_code
+    check_award, with_ip_proxy_start_requests, check_verification_code, \
+    modify_carinfo
 from scrapy import log
 from scrapy.http.request import Request
 from scrapy.selector import HtmlXPathSelector
@@ -393,21 +394,21 @@ class CarDetailSpider(FESpider):
         
 class PersonPhoneSpider(FESpider):
 
-    def parse(self, response):
-        
-        def build_public_pic_dir():
-            pic_dir = os.sep.join([os.getcwd(), u"58_PIC"])
-            if not os.path.exists(pic_dir):
-                os.makedirs(pic_dir)
-            return pic_dir
-            
-        cookies = response.request.cookies
-        
-        pic_path = os.sep.join([build_public_pic_dir(), cookies[voconst.contacter_phone_picture_name]])
-        
-        with open(pic_path , 'wb') as f:
-            f.write(response.body)
-        
+    name = u'PersonPhoneSpider'
+    
+    @with_ip_proxy_start_requests
+    def start_requests(self):
+        cis = self.settings[FetchConstant.DETAIL_LIST]
+        for ci in cis:
+            yield Request(ci.contacterphonepicurl, self.parse, 
+                          cookies={FetchConstant.CarInfo:ci,
+                                   FetchConstant.pic_dir:self.settings[FetchConstant.pic_dir]
+                                   })
+    
+    
+    @modify_carinfo
+    def parse(self, response):pass
+    
 class CustomerShopSpider(FESpider):
     
     name = u'CustomerShopSpider'

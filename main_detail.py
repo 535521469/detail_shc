@@ -70,9 +70,9 @@ if __name__ == '__main__':
                     sp.start()
                     cis = []
     
-                print (u'%s sleep 180s wait process stop' % datetime.datetime.now())
+                print (u'%s sleep 60s wait process stop' % datetime.datetime.now())
                 
-                time.sleep(180)
+                time.sleep(60)
                 for p in ps:
                     try:
                         p.terminate()
@@ -86,13 +86,3 @@ if __name__ == '__main__':
         if not carinfos:
             print (u'%s sleep 120s and get unfetched detail again' % datetime.datetime.now())
             time.sleep(120)
-            
-        
-        
-        
-#    else:
-#        if cis:
-#            sp = SpiderProcess(configdata, cis).run()
-        
-            
-        

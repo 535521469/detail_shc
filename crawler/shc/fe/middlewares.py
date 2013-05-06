@@ -39,7 +39,10 @@ class ProxyRetryMiddleWare(RetryMiddleware):
 
 
 class PopularRedirectMiddleWare(RedirectMiddleware):
-    
+    '''
+    用来判断推广信息的原始url是否已经抓取过。如果抓取的话，就删除此次抓取任务
+    但是为了保存时间序列的信息，此去重被弃用
+    '''
     def _redirect(self, redirected, request, spider, reason):
         
         redirect_url = redirected.url

@@ -1,4 +1,4 @@
-BOT_NAME = 'SHCSpider'
+BOT_NAME = 'PersonPhoneSpider'
 SPIDER_MODULES = ['crawler.shc.fe.spiders', ]
 LOG_ENCODING = u'UTF-8'
 
