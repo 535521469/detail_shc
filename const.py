@@ -20,4 +20,9 @@ class DetailSpiderConst(object):
     
 class AppConst(object):
     app_config = u'app'
-    app_config_frequence=u'frequence'
+    app_config_frequence = u'frequence'
+    
+class ExportConst(object):
+    export_config = u'export'
+    export_config_date = u'export_date'
+    export_config_dir = u'export_dir'

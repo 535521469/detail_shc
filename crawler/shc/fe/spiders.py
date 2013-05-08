@@ -18,6 +18,7 @@ from scrapy.spider import BaseSpider
 from uuid import uuid4
 import datetime
 import os
+from bot.const import CarInfoValueConst
 
 strptime = datetime.datetime.strptime
 #城市名称    标题信息    信息发布时间    价格    车型名称    联系人    联系人链接地址    联系方式图片文件名    车辆颜色    行驶里程    车辆排量    变速箱    上牌时间    商户名称    
@@ -285,10 +286,12 @@ class CarDetailSpider(FESpider):
         
         try:
             custom_flag = hxs.select('//em[@class="shenfen"]/text()').extract()[0].strip().replace(u"）", u'').replace(u"（", u'')
-            info[voconst.custom_flag] = u'1' if custom_flag.find(u'\u5546\u5bb6') != -1 else u'2'
+            info[voconst.custom_flag] = CarInfoValueConst.car_source_shop \
+                if custom_flag.find(u'\u5546\u5bb6') != -1 \
+                else CarInfoValueConst.car_source_individual
         except Exception as e:
 #            info[voconst.custom_flag] = u'1' if self.is_customer(cookies) else u'2'
-            info[voconst.custom_flag] = u'0'
+            info[voconst.custom_flag] = CarInfoValueConst.car_source_unkonwn
         
         try:
             declaretime = hxs.select('//li[@class="time"]/text()').extract()[0]
@@ -400,7 +403,7 @@ class PersonPhoneSpider(FESpider):
     def start_requests(self):
         cis = self.settings[FetchConstant.DETAIL_LIST]
         for ci in cis:
-            yield Request(ci.contacterphonepicurl, self.parse, 
+            yield Request(ci.contacterphonepicurl, self.parse,
                           cookies={FetchConstant.CarInfo:ci,
                                    FetchConstant.pic_dir:self.settings[FetchConstant.pic_dir]
                                    })

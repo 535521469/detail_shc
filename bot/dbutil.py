@@ -30,7 +30,7 @@ def get_unfetched_carinfo():
     fs = FetchSession()
     try:
         cis = fs.query(CarInfo).filter(CarInfo.statustype == None)\
-        .order_by(CarInfo.ctime).limit(500).all()
+        .order_by(CarInfo.declaredate).limit(500).all()
     except Exception as e:
         raise e
     finally:fs.close()
@@ -55,9 +55,8 @@ def get_unfetched_pic():
     try:
         cis = fs.query(CarInfo).filter(CarInfo.contacterphonepicmd5 == None)\
             .filter(CarInfo.contacterphonepicurl != None)\
-            .order_by(CarInfo.ctime).limit(500).all()
+            .order_by(CarInfo.declaredate).limit(500).all()
     except Exception as e:
         raise e
     finally:fs.close()
-    
     return cis

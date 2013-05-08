@@ -21,8 +21,16 @@ class HTTPProxyValueConst(object):
     validflag_yes = u"1"
     validflag_no = u"0"
     validflag_null = u"2"
+
+
+
     
 class CarInfoValueConst(object):
     
     online = u"1"
     offline = u"2"
+    
+    car_source_shop=u'1'
+    car_source_individual=u'2'
+    car_source_unkonwn=u'0'
+

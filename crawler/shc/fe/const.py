@@ -9,7 +9,7 @@ class FEConstant(FetchConstant):
     
     CITY_NAME = u'city_name'
     FILE_NAME = u"file_name"
-    PIC_NAME = u"pic_dir"
+    PIC_NAME = u"PIC_NAME"
     CUSTOMER_FLAG = u'customer'
     
     CURRENT_CITY = u'current_city'
