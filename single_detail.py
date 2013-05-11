@@ -30,6 +30,10 @@ class SpiderProcess(object):
                 values[ScrapyConst.LOG_FILE] = None
             else:
                 log_dir = values.get(ScrapyConst.LOG_DIR, os.getcwd())
+                
+                if not os.path.exists(log_dir):
+                    os.makedirs(log_dir,)
+                
                 if ScrapyConst.LOG_FILE in values:
                     log_file = values[ScrapyConst.LOG_FILE]
                     values[ScrapyConst.LOG_FILE] = os.sep.join([log_dir , log_file])

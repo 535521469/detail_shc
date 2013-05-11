@@ -8,6 +8,7 @@ from bot.item import CarInfo, SellerInfo
 from const import FetchConst
 from sqlalchemy import create_engine
 from sqlalchemy.orm.session import sessionmaker
+from bot.const import CarInfoValueConst
 
 dbconfig = configdata[FetchConst.DBConfig]
 # mysql://root:@localhost:3306/test
@@ -31,6 +32,18 @@ def get_unfetched_carinfo():
     try:
         cis = fs.query(CarInfo).filter(CarInfo.statustype == None)\
         .order_by(CarInfo.declaredate).limit(500).all()
+    except Exception as e:
+        raise e
+    finally:fs.close()
+    
+    return cis
+
+def get_fetched_carinfo():
+
+    fs = FetchSession()
+    try:
+        cis = fs.query(CarInfo).filter(CarInfo.statustype == CarInfoValueConst.online)\
+        .order_by(CarInfo.declaredate).order_by(CarInfo.lastactivedatetime).limit(600).all()
     except Exception as e:
         raise e
     finally:fs.close()

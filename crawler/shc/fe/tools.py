@@ -30,11 +30,10 @@ def ignore_notice(parse):
         notice_div = hxs.select('//div[@id="Notice"]')
         url = response.url
         if notice_div:
-            self.log((u'ignore for not exist detail page, with Notice div '
-                      '%s') % (url,), log.INFO)
             
             ci = response.request.cookies[FetchConstant.CarInfo]
             ci.statustype = CarInfoValueConst.offline
+            ci.offlinedatetime = datetime.datetime.now()
             fs = FetchSession()
             try:
                 fs.merge(ci)
@@ -42,15 +41,18 @@ def ignore_notice(parse):
                 fs.rollback()
             else:
                 fs.commit()
+                self.log((u'ignore for not exist detail page, with Notice div '
+                          '%s') % (url,), log.INFO)
             finally:
                 fs.close()
             
         else:
             rss = parse(self, response)
-            for rs in rss:
-                if isinstance(rs, Request):
-                    rs = rs.replace(dont_filter=True)
-                    yield rs
+            if rss:
+                for rs in rss:
+                    if isinstance(rs, Request):
+                        rs = rs.replace(dont_filter=True)
+                        yield rs
     return parse_simulate
 
 def check_award(parse):
@@ -87,10 +89,11 @@ def check_award(parse):
             
         else:
             rss = parse(self, response)
-            for rs in rss:
-                if isinstance(rs, Request):
-                    rs = rs.replace(dont_filter=True)
-                    yield rs
+            if rss:
+                for rs in rss:
+                    if isinstance(rs, Request):
+                        rs = rs.replace(dont_filter=True)
+                        yield rs
     return parse_simulate
 
 def check_verification_code(parse):
@@ -124,10 +127,11 @@ def check_verification_code(parse):
             
         else:
             rss = parse(self, response)
-            for rs in rss:
-                if isinstance(rs, Request):
-                    rs = rs.replace(dont_filter=True)
-                    yield rs
+            if rss:
+                for rs in rss:
+                    if isinstance(rs, Request):
+                        rs = rs.replace(dont_filter=True)
+                        yield rs
                 
     return parse_simulate
 
@@ -157,10 +161,11 @@ def check_blank_page(parse):
             
         else:
             rss = parse(self, response)
-            for rs in rss:
-                if isinstance(rs, Request):
-                    rs = rs.replace(dont_filter=True)
-                    yield rs
+            if rss:
+                for rs in rss:
+                    if isinstance(rs, Request):
+                        rs = rs.replace(dont_filter=True)
+                        yield rs
                 
     return parse_simulate
 
@@ -417,6 +422,10 @@ def detail_page_parse_4_save_2_db(parse):
         carsourcetype = sellerinfo.get(SHCFEShopInfoConstant.custom_flag)
         ci.carsourcetype = carsourcetype
         ci.contacterphonepicurl = contacterphonepicurl
+        if contacterphonepicurl :
+            ci.lastactivedatetime = datetime.datetime.now()
+        else:
+            ci.offlinedatetime = datetime.datetime.now()
         ci.sourcetype = u'58'
         
     @wraps(parse)
@@ -469,6 +478,41 @@ def detail_page_parse_4_save_2_db(parse):
                     self.log(u'something wrong %s' % str(e), log.CRITICAL)
                     fs.rollback()
                 else:
+                    fs.commit()
+                finally:
+                    fs.close()
+    return parse_simulate
+
+def detail_page_parse_4_change_status(parse):
+    
+    @wraps(parse)
+    def parse_simulate(self, response):
+        rss = parse(self, response)
+        if rss:
+            for rs in rss:
+                fs = FetchSession()
+                ci = response.request.cookies[FetchConstant.CarInfo]
+                contacterphonepicurl = rs.get(SHCFEShopInfoConstant.contacter_phone_url)
+                try:
+                    if not contacterphonepicurl:
+                        ci.statustype = CarInfoValueConst.offline
+                        ci.offlinedatetime = datetime.datetime.now()
+                    else:
+                        ci.lastactivedatetime = datetime.datetime.now()
+                    
+                    fs.merge(ci)
+                    
+                except Exception as e:
+                    self.log(u'something wrong %s' % str(e), log.CRITICAL)
+                    fs.rollback()
+                else:
+                    if contacterphonepicurl:
+                        msg = (u'change last active time %s '
+                               '%s') % (ci.seqid, ci.sourceurl)
+                    else:
+                        msg = (u'offline %s '
+                               '%s') % (ci.seqid, ci.sourceurl)
+                    self.log(msg, log.INFO)
                     fs.commit()
                 finally:
                     fs.close()

@@ -1,3 +1,8 @@
+[2013-05-11 v0.0.5]
+1.修复CarInfo中lastactivedatetime的字段大小写的bug
+2.增加了刷新汽车状态的功能。
+3.合并各settings.py，并修改main_*.py脚本和single_*.py
+
 [2013-05-08 v0.0.4]
 1.增加数据导出并打包功能。
 2.打包地址及数据抽取范围目前可配，且抽取范围只支持declaredate维度，不填默认为前一天

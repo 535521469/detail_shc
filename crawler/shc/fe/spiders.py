@@ -10,7 +10,7 @@ from crawler.shc.fe.tools import detail_page_parse_4_save_2_db, \
     list_page_parse_4_remove_duplicate_detail_page_request, \
     seller_page_parse_4_save_2_db, with_ip_proxy, check_blank_page, ignore_notice, \
     check_award, with_ip_proxy_start_requests, check_verification_code, \
-    modify_carinfo
+    modify_carinfo, detail_page_parse_4_change_status
 from scrapy import log
 from scrapy.http.request import Request
 from scrapy.selector import HtmlXPathSelector
@@ -248,15 +248,14 @@ class CarListSpider(FESpider):
                     " anymore , %s , %s ") % (current_city, current_url)
             self.log(msg, log.INFO)
                 
-class CarDetailSpider(FESpider):
+class DetailSpider(FESpider):
     
-    name = u'CarDetailSpider'
+    name = u'DetailSpider'
     
     @with_ip_proxy_start_requests
     def start_requests(self):
         cis = self.settings[FetchConstant.DETAIL_LIST]
         for ci in cis:
-#            yield Request(u'http://support.58.com/firewall/valid/1699062759.do?namespace=infodetailweb&url=http://sy.58.com/ershouche/13769827520650x.shtml', self.parse, cookies={FetchConstant.CarInfo:ci})
             if ci.sourceurl :
                 yield Request(ci.sourceurl, self.parse, cookies={FetchConstant.CarInfo:ci})
             elif ci.popularizeurl:
@@ -264,12 +263,6 @@ class CarDetailSpider(FESpider):
             else:
                 self.log(u'%s has no url ' % ci.seqid, log.CRITICAL)
     
-    @check_blank_page
-    @check_award
-    @check_verification_code
-    @ignore_notice
-    @with_ip_proxy    
-    @detail_page_parse_4_save_2_db
     def parse(self, response):
         '''
         parse 
@@ -408,7 +401,6 @@ class PersonPhoneSpider(FESpider):
                                    FetchConstant.pic_dir:self.settings[FetchConstant.pic_dir]
                                    })
     
-    
     @modify_carinfo
     def parse(self, response):pass
     
@@ -473,4 +465,55 @@ class CustomerShopSpider(FESpider):
                     break
                 
         yield info
-        
+
+class CarDetailSpider(FESpider):
+    
+    name = u'CarDetailSpider'
+    
+    @with_ip_proxy_start_requests
+    def start_requests(self):
+        cis = self.settings[FetchConstant.DETAIL_LIST]
+        for ci in cis:
+            if ci.sourceurl :
+                yield Request(ci.sourceurl, self.parse, cookies={FetchConstant.CarInfo:ci})
+            elif ci.popularizeurl:
+                yield Request(ci.popularizeurl, self.parse, cookies={FetchConstant.CarInfo:ci})
+            else:
+                self.log(u'%s has no url ' % ci.seqid, log.CRITICAL)
+    
+    @check_blank_page
+    @check_award
+    @check_verification_code
+    @ignore_notice
+    @with_ip_proxy    
+    @detail_page_parse_4_save_2_db
+    def parse(self, response):
+        rss = DetailSpider().parse(response)
+        for rs in rss:
+            yield rs
+
+class CarStatusSpider(FESpider):
+    
+    name = u'CarStatusSpider'
+    
+    @with_ip_proxy_start_requests
+    def start_requests(self):
+        cis = self.settings[FetchConstant.DETAIL_LIST]
+        for ci in cis:
+            if ci.sourceurl :
+                yield Request(ci.sourceurl, self.parse, cookies={FetchConstant.CarInfo:ci})
+            elif ci.popularizeurl:
+                yield Request(ci.popularizeurl, self.parse, cookies={FetchConstant.CarInfo:ci})
+            else:
+                self.log(u'%s has no url ' % ci.seqid, log.CRITICAL)
+    
+    @check_blank_page
+    @check_award
+    @check_verification_code
+    @ignore_notice
+    @with_ip_proxy
+    @detail_page_parse_4_change_status
+    def parse(self, response):
+        rss = DetailSpider().parse(response)
+        for rs in rss:
+            yield rs

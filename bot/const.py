@@ -15,15 +15,11 @@ class FetchConst(object):
     DBConfig_charactset = u'charactset'
     DBConfig_poolsize = u'PoolSize'
     
-    
 class HTTPProxyValueConst(object):
     
     validflag_yes = u"1"
     validflag_no = u"0"
     validflag_null = u"2"
-
-
-
     
 class CarInfoValueConst(object):
     

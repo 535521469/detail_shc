@@ -15,6 +15,7 @@ class ScrapyConst(object):
     
 class DetailSpiderConst(object):
     DetailSettings = u'detailsettings'
+    DetailStatusSettings = u'detailstatussettings'
     SellerSettings = u'sellersettings'
     PicSettings = u'picsettings'
     

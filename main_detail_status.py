@@ -4,7 +4,7 @@ Created on 2013-3-20
 @author: corleone
 '''
 from bot.config import configdata
-from bot.dbutil import get_unfetched_carinfo
+from bot.dbutil import get_unfetched_carinfo, get_fetched_carinfo
 from const import ScrapyConst, DetailSpiderConst
 from crawler.shc.fe.const import FEConstant as const
 from multiprocessing import Process
@@ -23,7 +23,7 @@ class SpiderProcess(Process):
     
     def run(self):
 
-        values = configdata.get(DetailSpiderConst.DetailSettings, {})
+        values = configdata.get(DetailSpiderConst.DetailStatusSettings, {})
         values[const.DETAIL_LIST] = self.cis
         values.update(**{
                   const.CONFIG_DATA:self.configdata,
@@ -34,8 +34,10 @@ class SpiderProcess(Process):
                 values[ScrapyConst.LOG_FILE] = None
             else:
                 log_dir = values.get(ScrapyConst.LOG_DIR, os.getcwd())
+                
                 if not os.path.exists(log_dir):
                     os.makedirs(log_dir,)
+                
                 if ScrapyConst.LOG_FILE in values:
                     log_file = values[ScrapyConst.LOG_FILE]
                     values[ScrapyConst.LOG_FILE] = os.sep.join([log_dir , log_file])
@@ -43,8 +45,7 @@ class SpiderProcess(Process):
         settings_path = u'crawler.shc.fe.settings'
         module_import = __import__(settings_path, {}, {}, [''])
         settings = CrawlerSettings(module_import, values=values)
-        execute(argv=["scrapy", "crawl", 'CarDetailSpider' ], settings=settings)
-        
+        execute(argv=["scrapy", "crawl", 'CarStatusSpider' ], settings=settings)
 
 spider_process_mapping = {}
 
@@ -54,13 +55,13 @@ if __name__ == '__main__':
     cis = []
     ps = []
     while 1:
-        carinfos = get_unfetched_carinfo()
+        carinfos = get_fetched_carinfo()
         while carinfos:
             
             while carinfos:
                 ci = carinfos.pop()
                 cis.append(ci)
-                if len(cis) == 50:
+                if len(cis) == 300:
                     sp = SpiderProcess(configdata, cis)
                     ps.append(sp)
                     sp.start()
@@ -72,9 +73,9 @@ if __name__ == '__main__':
                     sp.start()
                     cis = []
     
-                print (u'%s sleep 60s wait process stop' % datetime.datetime.now())
+                print (u'%s sleep 600s wait process stop' % datetime.datetime.now())
                 
-                time.sleep(60)
+                time.sleep(600)
                 for p in ps:
                     try:
                         p.terminate()
@@ -83,7 +84,7 @@ if __name__ == '__main__':
         else:
             cis = []
             ps = []
-            carinfos = get_unfetched_carinfo()
+            carinfos = get_fetched_carinfo()
         
         if not carinfos:
             print (u'%s sleep 120s and get unfetched detail again' % datetime.datetime.now())

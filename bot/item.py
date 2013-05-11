@@ -20,7 +20,7 @@ class CarInfo(Base):
     title = Column("Title", String,)
     declaredate = Column("DeclareDate", Date,)
     fetchdatetime = Column("FetchDateTime", DateTime,)
-    lastactiveDateTime = Column("LastActiveDateTime", DateTime,)
+    lastactivedatetime = Column("LastActiveDateTime", DateTime,)
     offlinedatetime = Column("OffLineDateTime", DateTime,)
     sourceurl = Column("SourceURL", String,)
     popularizeurl = Column("PopularizeURL", String,)
