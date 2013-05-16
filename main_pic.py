@@ -59,7 +59,7 @@ if __name__ == '__main__':
                 while carinfos:
                     ci = carinfos.pop()
                     cis.append(ci)
-                    if len(cis) == 100:
+                    if len(cis) == 500:
                         sp = SpiderProcess(configdata, cis)
                         ps.append(sp)
                         sp.start()
@@ -71,9 +71,10 @@ if __name__ == '__main__':
                         sp.start()
                         cis = []
         
-                    print (u'%s [pic] sleep 60s wait process stop' % datetime.datetime.now())
+                    print (u'%s [pic] sleep 600s wait process '
+                        'stop') % datetime.datetime.now()
                     
-                    time.sleep(60)
+                    time.sleep(600)
                     for p in ps:
                         try:
                             p.terminate()
@@ -85,7 +86,8 @@ if __name__ == '__main__':
                 carinfos = get_unfetched_pic()
             
             if not carinfos:
-                print (u'%s [pic] sleep 120s and get unfetched detail again' % datetime.datetime.now())
+                print (u'%s [pic] sleep 120s and get unfetched detail '
+                       'again') % datetime.datetime.now()
                 time.sleep(120)
         except Exception as e:
             print str(e)

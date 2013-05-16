@@ -10,7 +10,7 @@ from crawler.shc.fe.tools import detail_page_parse_4_save_2_db, \
     list_page_parse_4_remove_duplicate_detail_page_request, \
     seller_page_parse_4_save_2_db, with_ip_proxy, check_blank_page, ignore_notice, \
     check_award, with_ip_proxy_start_requests, check_verification_code, \
-    modify_carinfo, detail_page_parse_4_change_status
+    modify_carinfo, detail_page_parse_4_change_status, check_method_not_allowed
 from scrapy import log
 from scrapy.http.request import Request
 from scrapy.selector import HtmlXPathSelector
@@ -481,6 +481,7 @@ class CarDetailSpider(FESpider):
             else:
                 self.log(u'%s has no url ' % ci.seqid, log.CRITICAL)
     
+    @check_method_not_allowed
     @check_blank_page
     @check_award
     @check_verification_code

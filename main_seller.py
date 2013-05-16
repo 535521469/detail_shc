@@ -60,21 +60,22 @@ if __name__ == '__main__':
             while sellerinfos:
                 si = sellerinfos.pop()
                 sis.append(si)
-                if len(sis) == 300:
-                    sp = SpiderProcess(configdata,sis)
+                if len(sis) == 500:
+                    sp = SpiderProcess(configdata, sis)
                     ps.append(sp)
                     sp.start()
-                    cis = []
+                    sis = []
             else:
-                if cis:
+                if sis:
                     sp = SpiderProcess(configdata, sis)
                     ps.append(sp)
                     sp.start()
                     sis = []
     
-                print (u'%s sleep 180s wait process stop' % datetime.datetime.now())
+                print (u'%s [seller] sleep 600s wait process '
+                       'stop') % datetime.datetime.now()
                 
-                time.sleep(180)
+                time.sleep(600)
                 for p in ps:
                     try:
                         p.terminate()
@@ -86,15 +87,10 @@ if __name__ == '__main__':
             sellerinfos = get_unfetched_seller()
             
         if not sellerinfos:
-            print (u'%s sleep 120s and get unfetched detail again' % datetime.datetime.now())
+            print (u'%s [seller] sleep 120s and get unfetched detail '
+                   'again') % datetime.datetime.now()
             time.sleep(120)
             
         
         
-        
-#    else:
-#        if cis:
-#            sp = SpiderProcess(configdata, cis).run()
-        
-            
         

@@ -19,6 +19,8 @@ from sqlalchemy.sql.expression import or_
 import datetime
 import os
 
+
+
 def ignore_notice(parse):
     
     @wraps(parse)
@@ -105,7 +107,7 @@ def check_verification_code(parse):
         hxs = HtmlXPathSelector(response)
         verification_div = hxs.select('//div[@class="w_990"]')
         url = response.url
-        if verification_div:
+        if verification_div or url.find('support') > -1:
             precede_url = url[url.index(u'url=') + 4:]
             
             while 1:
@@ -159,6 +161,47 @@ def check_blank_page(parse):
             
             yield req
             
+        else:
+            rss = parse(self, response)
+            if rss:
+                for rs in rss:
+                    if isinstance(rs, Request):
+                        rs = rs.replace(dont_filter=True)
+                        yield rs
+                
+    return parse_simulate
+
+def check_method_not_allowed(parse):
+    @wraps(parse)
+    def parse_simulate(self, response):
+        '''
+        see method_not_allowed.jpg
+        '''
+        p_val = u""
+        try:
+            p_val = HtmlXPathSelector(response).select('//p/text()')[0].extract()
+        except:
+            pass
+        
+        if p_val.strip() == u"Method Not Allowed":
+            
+            fs = FetchSession()
+            try:
+                ci = response.request.cookies[FetchConstant.CarInfo]
+                ci.statustype = CarInfoValueConst.offline
+                ci.offlinedatetime = datetime.datetime.now()
+                fs.merge(ci)
+            except Exception as e:
+                fs.rollback()
+                self.log(u'mna, something wrong %s' % str(e),
+                                                     log.CRITICAL)
+                raise e
+            else:
+                fs.commit()
+                self.log((u'method not allowed '
+                          '%s') % (response.url,), log.INFO)
+            finally:
+                fs.close()
         else:
             rss = parse(self, response)
             if rss:

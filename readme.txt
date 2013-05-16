@@ -1,3 +1,9 @@
+[2013-05-16 v0.0.6]
+1.修复main_seller中参数未定义的bug
+2.取消detail抓取中，查询未抓取detail时的排序条件
+3.增加method not allowed条件过滤
+4.按实际情况，调整多进程爬虫执行时间
+
 [2013-05-11 v0.0.5]
 1.修复CarInfo中lastactivedatetime的字段大小写的bug
 2.增加了刷新汽车状态的功能。
