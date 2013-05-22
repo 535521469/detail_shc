@@ -10,7 +10,8 @@ from crawler.shc.fe.tools import detail_page_parse_4_save_2_db, \
     list_page_parse_4_remove_duplicate_detail_page_request, \
     seller_page_parse_4_save_2_db, with_ip_proxy, check_blank_page, ignore_notice, \
     check_award, with_ip_proxy_start_requests, check_verification_code, \
-    modify_carinfo, detail_page_parse_4_change_status, check_method_not_allowed
+    modify_carinfo, detail_page_parse_4_change_status, check_method_not_allowed,\
+    redirect_2_login
 from scrapy import log
 from scrapy.http.request import Request
 from scrapy.selector import HtmlXPathSelector
@@ -416,6 +417,7 @@ class CustomerShopSpider(FESpider):
             yield Request(si.sellerurl, self.parse, cookies={FetchConstant.SellerInfo:si})
     
     @check_blank_page
+    @redirect_2_login
     @with_ip_proxy
     @seller_page_parse_4_save_2_db
     def parse(self, response):

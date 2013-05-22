@@ -633,3 +633,51 @@ def seller_page_parse_4_save_2_db(parse):
                     fs.close()
     return parse_simulate
 
+def redirect_2_login(parse):
+    
+    def stuff_si(si, rs):
+        si.selleraddress = rs.get(SHCFEShopInfoConstant.shop_address)
+        si.sellername = rs.get(SHCFEShopInfoConstant.shop_name)
+        si.sellerphone = rs.get(SHCFEShopInfoConstant.shop_phone)
+        si.enterdate = rs.get(SHCFEShopInfoConstant.enter_time)
+        
+    @wraps(parse)
+    def parse_simulate(self, response):
+        fs = FetchSession()
+        si = response.request.cookies[FetchConstant.SellerInfo]
+        if response.url.startswith("http://passport"):
+            if si is not None:
+                si.enterdate = datetime.datetime(1970, 1, 1).date()
+                try:
+                    fs.merge(si)
+                except Exception as e:
+                    self.log(u'something wrong %s' % str(e), log.CRITICAL)
+                    fs.rollback()
+                    raise e
+                else:
+                    self.log((u'fetch seller deprecated %s '
+                              '%s') % (si.seqid, si.sellerurl), log.INFO)
+                    fs.commit()
+                finally:
+                    fs.close()
+                    
+        else:
+            rss = parse(self, response)
+            if rss:
+                for rs in rss:
+                    try:
+                        if si is not None:
+                            stuff_si(si, rs)
+                        fs.merge(si)
+                    except Exception as e:
+                        self.log(u'something wrong %s' % str(e), log.CRITICAL)
+                        fs.rollback()
+                        raise e
+                    else:
+                        self.log(u'fetch seller info %s %s' % (si.seqid, si.sellerurl),
+                                 log.INFO)
+                        fs.commit()
+                    finally:
+                        fs.close()
+    return parse_simulate
+

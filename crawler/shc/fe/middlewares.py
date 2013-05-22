@@ -11,6 +11,7 @@ from scrapy import log
 from scrapy.contrib.downloadermiddleware.redirect import RedirectMiddleware
 from scrapy.contrib.downloadermiddleware.retry import RetryMiddleware
 from scrapy.exceptions import IgnoreRequest
+from twisted.internet.error import TCPTimedOutError
 
 class ProxyRetryMiddleWare(RetryMiddleware):
 
@@ -18,6 +19,10 @@ class ProxyRetryMiddleWare(RetryMiddleware):
         RetryMiddleware.__init__(self, settings)
 
     def _retry(self, request, reason, spider):
+        
+        if isinstance(reason, TCPTimedOutError):
+            reason.args = (u'...',)
+        
         retries = request.meta.get('retry_times', 0)
         if retries <= self.max_retry_times - 1:
             next_proxy = get_valid_proxy.next()

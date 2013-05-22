@@ -60,7 +60,7 @@ if __name__ == '__main__':
             while carinfos:
                 ci = carinfos.pop()
                 cis.append(ci)
-                if len(cis) == 250:
+                if len(cis) == 120:
                     sp = SpiderProcess(configdata, cis)
                     ps.append(sp)
                     sp.start()
@@ -72,10 +72,10 @@ if __name__ == '__main__':
                     sp.start()
                     cis = []
     
-                print (u'%s [detail] sleep 300s wait process '
+                print (u'%s [detail] sleep 120s wait process '
                        'stop') % datetime.datetime.now()
                 
-                time.sleep(300)
+                time.sleep(120)
                 for p in ps:
                     try:
                         p.terminate()

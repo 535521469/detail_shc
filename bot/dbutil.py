@@ -55,6 +55,7 @@ def get_unfetched_seller():
     fs = FetchSession()
     try:
         cis = fs.query(SellerInfo).filter(SellerInfo.enterdate == None)\
+        .filter(SellerInfo.seqid == u'fceb88000889491aa7c3f06e16e9f902')\
         .order_by(SellerInfo.ctime).limit(500).all()
     except Exception as e:
         raise e
@@ -68,7 +69,7 @@ def get_unfetched_pic():
     try:
         cis = fs.query(CarInfo).filter(CarInfo.contacterphonepicmd5 == None)\
             .filter(CarInfo.contacterphonepicurl != None)\
-            .order_by(CarInfo.declaredate).limit(500).all()
+            .limit(500).all()
     except Exception as e:
         raise e
     finally:fs.close()

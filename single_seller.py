@@ -52,7 +52,7 @@ if __name__ == '__main__':
         if len(sis) == 300:
             sp = SpiderProcess(configdata, sis)
             sp.run()
-            cis = []
+            sis = []
     else:
-        if cis:
-            sp = SpiderProcess(configdata, cis).run()
+        if sis:
+            sp = SpiderProcess(configdata, sis).run()
