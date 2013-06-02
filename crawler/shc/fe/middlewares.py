@@ -3,15 +3,18 @@
 Created on 2013-4-15
 @author: corleone
 '''
+from bot.const import CarInfoValueConst
 from bot.dbutil import FetchSession
 from bot.item import CarInfo
 from bot.proxyutil import get_valid_proxy
 from crawler.shc.const import FetchConstant
+from crawler.shc.fe.spiders import CarDetailSpider
 from scrapy import log
 from scrapy.contrib.downloadermiddleware.redirect import RedirectMiddleware
 from scrapy.contrib.downloadermiddleware.retry import RetryMiddleware
 from scrapy.exceptions import IgnoreRequest
 from twisted.internet.error import TCPTimedOutError
+import datetime
 
 class ProxyRetryMiddleWare(RetryMiddleware):
 
@@ -24,6 +27,28 @@ class ProxyRetryMiddleWare(RetryMiddleware):
             reason.args = (u'...',)
         
         retries = request.meta.get('retry_times', 0)
+        
+        if str(reason).find('404') > -1 and request.callback.im_class == CarDetailSpider:
+            ci = request.cookies[FetchConstant.CarInfo]
+
+            fs = FetchSession()
+            ci_exist = fs.query(CarInfo).filter(CarInfo.seqid == ci.seqid).first()
+            if ci_exist:
+                try:
+                    ci_exist.statustype = CarInfoValueConst.offline
+                    ci_exist.offlinedatetime = datetime.datetime.today()
+                    fs.commit()
+                    msg = (u'[404] seqid: %s ,url not exist %s') % (ci.seqid, request.url,)
+                    spider.log(msg, log.INFO)
+                except:
+                    fs.rollback()
+                finally:
+                    fs.close()
+            
+            request.meta['retry_times'] = self.max_retry_times
+                
+            return RetryMiddleware._retry(self, request, reason, spider)
+        
         if retries <= self.max_retry_times - 1:
             next_proxy = get_valid_proxy.next()
             rs = request.copy()

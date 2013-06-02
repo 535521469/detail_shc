@@ -609,7 +609,7 @@ def seller_page_parse_4_save_2_db(parse):
         si.sellername = rs.get(SHCFEShopInfoConstant.shop_name)
         si.sellerphone = rs.get(SHCFEShopInfoConstant.shop_phone)
         si.enterdate = rs.get(SHCFEShopInfoConstant.enter_time)
-        
+
     @wraps(parse)
     def parse_simulate(self, response):
         rss = parse(self, response)
@@ -645,7 +645,11 @@ def redirect_2_login(parse):
     def parse_simulate(self, response):
         fs = FetchSession()
         si = response.request.cookies[FetchConstant.SellerInfo]
-        if response.url.startswith("http://passport"):
+        
+        
+        
+        
+        if response.url.startswith("http://passport") :
             if si is not None:
                 si.enterdate = datetime.datetime(1970, 1, 1).date()
                 try:
@@ -656,6 +660,111 @@ def redirect_2_login(parse):
                     raise e
                 else:
                     self.log((u'fetch seller deprecated %s '
+                              '%s') % (si.seqid, si.sellerurl), log.INFO)
+                    fs.commit()
+                finally:
+                    fs.close()
+                    
+        else:
+            rss = parse(self, response)
+            if rss:
+                for rs in rss:
+                    try:
+                        if si is not None:
+                            stuff_si(si, rs)
+                        fs.merge(si)
+                    except Exception as e:
+                        self.log(u'something wrong %s' % str(e), log.CRITICAL)
+                        fs.rollback()
+                        raise e
+                    else:
+                        self.log(u'fetch seller info %s %s' % (si.seqid, si.sellerurl),
+                                 log.INFO)
+                        fs.commit()
+                    finally:
+                        fs.close()
+    return parse_simulate
+
+
+def redirect_2_404(parse):
+    
+    def stuff_si(si, rs):
+        si.selleraddress = rs.get(SHCFEShopInfoConstant.shop_address)
+        si.sellername = rs.get(SHCFEShopInfoConstant.shop_name)
+        si.sellerphone = rs.get(SHCFEShopInfoConstant.shop_phone)
+        si.enterdate = rs.get(SHCFEShopInfoConstant.enter_time)
+        
+    @wraps(parse)
+    def parse_simulate(self, response):
+        fs = FetchSession()
+        si = response.request.cookies[FetchConstant.SellerInfo]
+        if response.url.startswith("http://404.58.com/") :
+            if si is not None:
+                si.enterdate = datetime.datetime(1970, 1, 1).date()
+                try:
+                    fs.merge(si)
+                except Exception as e:
+                    self.log(u'something wrong %s' % str(e), log.CRITICAL)
+                    fs.rollback()
+                    raise e
+                else:
+                    self.log((u'[404] fetch seller deprecated %s '
+                              '%s') % (si.seqid, si.sellerurl), log.INFO)
+                    fs.commit()
+                finally:
+                    fs.close()
+                    
+        else:
+            rss = parse(self, response)
+            if rss:
+                for rs in rss:
+                    try:
+                        if si is not None:
+                            stuff_si(si, rs)
+                        fs.merge(si)
+                    except Exception as e:
+                        self.log(u'something wrong %s' % str(e), log.CRITICAL)
+                        fs.rollback()
+                        raise e
+                    else:
+                        self.log(u'fetch seller info %s %s' % (si.seqid, si.sellerurl),
+                                 log.INFO)
+                        fs.commit()
+                    finally:
+                        fs.close()
+    return parse_simulate
+
+
+def not_exists_4_seller_will_redirect_2_yellow_page(parse):
+    
+    def stuff_si(si, rs):
+        si.selleraddress = rs.get(SHCFEShopInfoConstant.shop_address)
+        si.sellername = rs.get(SHCFEShopInfoConstant.shop_name)
+        si.sellerphone = rs.get(SHCFEShopInfoConstant.shop_phone)
+        si.enterdate = rs.get(SHCFEShopInfoConstant.enter_time)
+        
+    @wraps(parse)
+    def parse_simulate(self, response):
+        fs = FetchSession()
+        si = response.request.cookies[FetchConstant.SellerInfo]
+
+        hxs = HtmlXPathSelector(response)
+        try:
+            error_info = hxs.select('//div[@class="ico-bg"]/parent::div/h1/text()').extract()[0]
+        except Exception:
+            error_info = None
+
+        if u'\u5443\u2026\u60A8\u8BBF\u95EE\u7684\u9875\u9762\u4E0D\u5B58\u5728\uFF01' == error_info :
+            if si is not None:
+                si.enterdate = datetime.datetime(1970, 1, 1).date()
+                try:
+                    fs.merge(si)
+                except Exception as e:
+                    self.log(u'something wrong %s' % str(e), log.CRITICAL)
+                    fs.rollback()
+                    raise e
+                else:
+                    self.log((u'[will to yellow page] fetch seller deprecated %s '
                               '%s') % (si.seqid, si.sellerurl), log.INFO)
                     fs.commit()
                 finally:

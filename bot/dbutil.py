@@ -55,8 +55,8 @@ def get_unfetched_seller():
     fs = FetchSession()
     try:
         cis = fs.query(SellerInfo).filter(SellerInfo.enterdate == None)\
-        .filter(SellerInfo.seqid == u'fceb88000889491aa7c3f06e16e9f902')\
         .order_by(SellerInfo.ctime).limit(500).all()
+#        .filter("seqid = '25257419b00c4bb090bbe21b3483ab21'")\
     except Exception as e:
         raise e
     finally:fs.close()

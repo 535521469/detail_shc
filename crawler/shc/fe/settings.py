@@ -10,6 +10,8 @@ DOWNLOADER_MIDDLEWARES = {
 #                          'scrapy.contrib.downloadermiddleware.redirect.RedirectMiddleware':None,
                            }
 
+RETRY_HTTP_CODES=[500, 503, 504, 400, 408,404]
+
 DOWNLOAD_TIMEOUT=2
 DOWNLOAD_DELAY=0
 

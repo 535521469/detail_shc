@@ -10,8 +10,9 @@ from crawler.shc.fe.tools import detail_page_parse_4_save_2_db, \
     list_page_parse_4_remove_duplicate_detail_page_request, \
     seller_page_parse_4_save_2_db, with_ip_proxy, check_blank_page, ignore_notice, \
     check_award, with_ip_proxy_start_requests, check_verification_code, \
-    modify_carinfo, detail_page_parse_4_change_status, check_method_not_allowed,\
-    redirect_2_login
+    modify_carinfo, detail_page_parse_4_change_status, check_method_not_allowed, \
+    redirect_2_login, redirect_2_404,\
+    not_exists_4_seller_will_redirect_2_yellow_page
 from scrapy import log
 from scrapy.http.request import Request
 from scrapy.selector import HtmlXPathSelector
@@ -250,7 +251,7 @@ class CarListSpider(FESpider):
             self.log(msg, log.INFO)
                 
 class DetailSpider(FESpider):
-    
+    handle_httpstatus_list = [404]
     name = u'DetailSpider'
     
     @with_ip_proxy_start_requests
@@ -416,8 +417,11 @@ class CustomerShopSpider(FESpider):
 #            yield Request(u'http://support.58.com/firewall/valid/1699062759.do?namespace=infodetailweb&url=http://sy.58.com/ershouche/13769827520650x.shtml', self.parse, cookies={FetchConstant.CarInfo:ci})
             yield Request(si.sellerurl, self.parse, cookies={FetchConstant.SellerInfo:si})
     
+    
     @check_blank_page
+    @redirect_2_404
     @redirect_2_login
+    @not_exists_4_seller_will_redirect_2_yellow_page
     @with_ip_proxy
     @seller_page_parse_4_save_2_db
     def parse(self, response):
@@ -432,18 +436,28 @@ class CustomerShopSpider(FESpider):
             shop_name = hxs.select('//div[@class="bi_tit"]/text()').extract()[0]
             info[voconst.shop_name] = shop_name.strip()
         except Exception:
-            pass
+            try:
+                shop_name = hxs.select('//li[@class="listfirst"]').select('h3/text()').extract()[0]
+                info[voconst.shop_name] = shop_name.strip()
+            except Exception:
+                pass
         
         try:
             xps = '//div[@class="title_top"]/ul[1]/li[2]/text()'
             shop_address = hxs.select(xps).extract()[0]
             info[voconst.shop_address] = shop_address[3:].strip()
         except Exception :
-            pass
+            try:
+                xps = '//span[@class="dizhi telephone"]/text()'
+                shop_address = hxs.select(xps).extract()[0]
+                info[voconst.shop_address] = shop_address[3:].strip()
+            except Exception :
+                pass
         
         try:
-            xps = '//dl[@class="ri_info_dl_01"]/dd'
-            for dd_tag in hxs.select(xps):
+            xps = '//div[@class="meg_con"]/ul'
+            dl_tags = hxs.select(xps)
+            for dd_tag in dl_tags:
                 if dd_tag.select('text()').extract()[0] == u'联系电话：':
                     xps = "parent::dl/dt/text()"
                     shop_phone = dd_tag.select(xps).extract()[0]
@@ -454,6 +468,92 @@ class CustomerShopSpider(FESpider):
                     info[voconst.enter_time] = enter_time.strip()
         except Exception:
             pass
+        
+        if voconst.shop_phone not in info:
+            try:
+                xps = '//div[@class="meg_con"]/ul/li'
+                for li_tag in hxs.select(xps):
+                    span_tag = li_tag.select('span')
+                    if span_tag:
+#                        if span_tag.select('text()').extract()[0].replace(u'\uFF1A', u'') == u'\u7535\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\u8bdd': # telephone
+                        if span_tag[0].select('text()').extract()[0].replace(u'\uFF1A', u'') == u'\u7535\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\u8bdd': # telephone
+                            shop_phone = span_tag[1].select('text()').extract()[0].strip()
+                            info[voconst.shop_phone] = shop_phone.strip()
+                            break
+            except Exception:
+                pass
+            
+        if voconst.enter_time not in info:
+            try:
+                xps = '//div[@class="meg_con"]/ul/li'
+                for li_tag in hxs.select(xps):
+                    span_tag = li_tag.select('span')
+                    if span_tag:
+                        
+                        if span_tag[0].select('text()').extract()[0].replace(u'\uFF1A', u'') == u'\u5165\u9A7B\u65F6\u95F4': # enterdate
+                            shop_phone = span_tag[0].select('parent::li/text()').extract()[1].strip()
+                            info[voconst.enter_time] = shop_phone.strip()
+                            break
+            except Exception:
+                pass
+
+        if info.get(voconst.shop_name) is None:
+            try:
+                shop_name = hxs.select('//div[@class="bannerm"]/h1/text()').extract()[0]
+                info[voconst.shop_name] = shop_name.strip()
+            except Exception:
+                pass
+
+        if info.get(voconst.shop_phone) is None:
+            liTags = hxs.select('//div[@class="sj_k"]/ul/li')
+            for liTag in liTags:
+                try:
+                    if liTag.select('text()').extract()[0].replace(u'\uFF1A', u'') == u'\u5546\u5BB6\u7535\u8BDD':
+                        info[voconst.shop_phone] = liTag.select("span/text()").extract()[0].strip()
+                        break
+                except Exception:
+                    pass
+
+        if info.get(voconst.enter_time) is None:
+            liTags = hxs.select('//div[@class="sj_k"]/ul/li')
+            for liTag in liTags:
+                try:
+                    enter_time = liTag.select('text()').extract()[0]
+                    if enter_time.find(u'\u5165\u9A7B\u65F6\u95F4\uFF1A') > -1:
+                        info[voconst.enter_time] = enter_time.split(u'\uFF1A')[1].strip()
+                        break
+                except Exception:
+                    pass
+
+        if info.get(voconst.shop_address) is None:
+            try:
+                iTag = hxs.select('//li[@class="add"]/i')
+                if iTag.select('text()').extract()[0].replace(u'\uFF1A', u'') == u'\u5546\u5BB6\u5730\u5740':
+                    info[voconst.shop_address] = iTag[0].select("parent::li/em/text()").extract()[0].strip()
+            except Exception:
+                pass
+
+        if info.get(voconst.shop_phone) is None:
+            dlTags = hxs.select('//dl[@class="ri_info_dl_01"]')
+            try:
+                for dlTag in dlTags:
+                    if dlTag.select('dd/text()').extract()[0] == u"\u8054\u7CFB\u7535\u8BDD\uFF1A":
+                        info[voconst.shop_phone] = dlTag.select('dt/text()').extract()[0].strip()
+                        break
+            except Exception:
+                pass  
+
+
+        if info.get(voconst.enter_time) is None:
+            dlTags = hxs.select('//dl[@class="ri_info_dl_01"]')
+            try:
+                for dlTag in dlTags:
+                    if dlTag.select('dd/text()').extract()[0] == u"\u5165\u9A7B\u65F6\u95F4\uFF1A":
+                        info[voconst.enter_time] = dlTag.select('dt/text()').extract()[0].strip()
+                        break
+            except Exception:
+                pass  
+
 
         if info.get(voconst.enter_time) is None:
             #===================================================================

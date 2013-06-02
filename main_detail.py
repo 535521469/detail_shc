@@ -72,10 +72,10 @@ if __name__ == '__main__':
                     sp.start()
                     cis = []
     
-                print (u'%s [detail] sleep 120s wait process '
+                print (u'%s [detail] sleep 60s wait process '
                        'stop') % datetime.datetime.now()
                 
-                time.sleep(120)
+                time.sleep(60)
                 for p in ps:
                     try:
                         p.terminate()

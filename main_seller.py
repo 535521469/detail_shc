@@ -87,7 +87,7 @@ if __name__ == '__main__':
             sellerinfos = get_unfetched_seller()
             
         if not sellerinfos:
-            print (u'%s [seller] sleep 120s and get unfetched detail '
+            print (u'%s [seller] sleep 120s and get unfetched seller '
                    'again') % datetime.datetime.now()
             time.sleep(120)
             
