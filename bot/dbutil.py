@@ -43,7 +43,7 @@ def get_fetched_carinfo():
     fs = FetchSession()
     try:
         cis = fs.query(CarInfo).filter(CarInfo.statustype == CarInfoValueConst.online)\
-        .order_by(CarInfo.declaredate).order_by(CarInfo.lastactivedatetime).limit(600).all()
+        .order_by(CarInfo.lastactivedatetime).order_by(CarInfo.declaredate).limit(600).all()
     except Exception as e:
         raise e
     finally:fs.close()

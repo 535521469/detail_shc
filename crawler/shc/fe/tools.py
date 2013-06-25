@@ -356,7 +356,6 @@ def list_page_parse_4_remove_duplicate_detail_page_request(parse):
                     
     return parse_simulate
 
-# 本方法保留，配合 redirect 中间件 在推广部分 实现 去重短路
 #def detail_page_parse_4_save_2_db(parse):
 #    
 #    def stuff_ci(ci, sellerinfo, current_city):
@@ -536,6 +535,7 @@ def detail_page_parse_4_change_status(parse):
                 fs = FetchSession()
                 ci = response.request.cookies[FetchConstant.CarInfo]
                 contacterphonepicurl = rs.get(SHCFEShopInfoConstant.contacter_phone_url)
+                last_act_date = ci.lastactivedatetime
                 try:
                     if not contacterphonepicurl:
                         ci.statustype = CarInfoValueConst.offline
@@ -551,10 +551,10 @@ def detail_page_parse_4_change_status(parse):
                 else:
                     if contacterphonepicurl:
                         msg = (u'change last active time %s '
-                               '%s') % (ci.seqid, ci.sourceurl)
+                               '%s %s') % (ci.seqid, ci.sourceurl,last_act_date)
                     else:
                         msg = (u'offline %s '
-                               '%s') % (ci.seqid, ci.sourceurl)
+                               '%s %s') % (ci.seqid, ci.sourceurl,last_act_date)
                     self.log(msg, log.INFO)
                     fs.commit()
                 finally:
