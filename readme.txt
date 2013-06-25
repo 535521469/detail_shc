@@ -1,6 +1,7 @@
 [2013-06-25 v0.0.9]
 1.商户信息不再从detail页面中抓取，直接用上一步骤得到的结果
 2.在确保每条online的carinfo记录的lastActiveDateTime字段都不为空的前提下，修改状态更新查询排序，把lastActiveDateTime做为第一排序
+	则最初的数据为 lastactivedatetime:2013-05-14
 
 [2013-06-02 v0.0.8]
 1.商户抓取时，各种不存在的条件，包括商户不存在，跳转到黄页。个人不存在，显示notExists.html.设置为1970-01-01
