@@ -1,3 +1,7 @@
+[2013-06-25 v0.0.10]
+1.58页面略微的改版，引发一个隐藏的bug。在detail页面中
+
+
 [2013-06-25 v0.0.9]
 1.商户信息不再从detail页面中抓取，直接用上一步骤得到的结果
 2.在确保每条online的carinfo记录的lastActiveDateTime字段都不为空的前提下，修改状态更新查询排序，把lastActiveDateTime做为第一排序
