@@ -317,6 +317,7 @@ class DetailSpider(FESpider):
         li_tags = hxs.select(xps)
         for idx, li_tag in enumerate(li_tags):
             try:
+                div_val = u''
                 blank = li_tag.select('child::*')
                 if blank:
                     div_val = li_tag.select('div[1]/text()').extract()
