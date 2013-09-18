@@ -11,7 +11,7 @@ from crawler.shc.fe.tools import detail_page_parse_4_save_2_db, \
     seller_page_parse_4_save_2_db, with_ip_proxy, check_blank_page, ignore_notice, \
     check_award, with_ip_proxy_start_requests, check_verification_code, \
     modify_carinfo, detail_page_parse_4_change_status, check_method_not_allowed, \
-    redirect_2_login, redirect_2_404,\
+    redirect_2_login, redirect_2_404, \
     not_exists_4_seller_will_redirect_2_yellow_page
 from scrapy import log
 from scrapy.http.request import Request
@@ -273,21 +273,29 @@ class DetailSpider(FESpider):
         cookies = dict(response.request.cookies)
         cookies[const.sellerinfo] = info
         
+        car_info = cookies[FetchConstant.CarInfo]
+        
         hxs = HtmlXPathSelector(response)
         xps = '//div[@class="breadCrumb f12"]/span/a[1]/text()'
         city_ = hxs.select(xps).extract()[0]
         city_name = city_[:city_.find(u'58')]
         info[voconst.cityname] = city_name
         
-        try:
-            custom_flag = hxs.select('//em[@class="shenfen"]/text()').extract()[0].strip().replace(u"）", u'').replace(u"（", u'')
-            info[voconst.custom_flag] = CarInfoValueConst.car_source_shop \
-                if custom_flag.find(u'\u5546\u5bb6') != -1 \
-                else CarInfoValueConst.car_source_individual
-        except Exception as e:
-#            info[voconst.custom_flag] = u'1' if self.is_customer(cookies) else u'2'
-            info[voconst.custom_flag] = CarInfoValueConst.car_source_unkonwn
-        
+
+        if car_info.carsourcetype is None:
+            
+            self.log((u"carsourcetype null car seqid :%s " % (car_info.seqid,)), log.CRITICAL)
+            
+            try:
+                custom_flag = hxs.select('//em[@class="shenfen"]/text()').extract()[0].strip().replace(u"）", u'').replace(u"（", u'')
+                info[voconst.custom_flag] = CarInfoValueConst.car_source_shop \
+                    if custom_flag.find(u'\u5546\u5bb6') != -1 \
+                    else CarInfoValueConst.car_source_individual
+            except Exception as e:
+                info[voconst.custom_flag] = CarInfoValueConst.car_source_unkonwn
+        else:
+            info[voconst.custom_flag] = car_info.carsourcetype
+
         try:
             declaretime = hxs.select('//li[@class="time"]/text()').extract()[0]
             info[voconst.declaretime] = declaretime
