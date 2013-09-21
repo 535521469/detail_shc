@@ -43,6 +43,7 @@ class FetchConstant(FetchConst):
     SellerInfo = u'sellerinfo'
     
     pic_dir = u'pic_dir'
+    pic_extract_dir=u'pic_extract_dir'
     
     PROXY_VALID_TIME = u"proxy_valid_time"
     

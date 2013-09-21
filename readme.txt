@@ -1,46 +1,47 @@
-[2013-06-25 v0.0.10]
-1.58ҳ����΢�ĸİ棬����һ�����ص�bug����detailҳ����
+[2013-09-21 v0.0.11]
+1.58 图片下载有10%左右是0字节的，增加过滤
 
+[2013-09-18 v0.0.10]
+1.58页面略微的改版，引发一个隐藏的bug。在detail页面中
 
 [2013-06-25 v0.0.9]
-1.�̻���Ϣ���ٴ�detailҳ����ץȡ��ֱ������һ����õ��Ľ��
-2.��ȷ��ÿ��online��carinfo��¼��lastActiveDateTime�ֶζ���Ϊ�յ�ǰ���£��޸�״̬���²�ѯ���򣬰�lastActiveDateTime��Ϊ��һ����
-	�����������Ϊ lastactivedatetime:2013-05-14
+1.商户信息不再从detail页面中抓取，直接用上一步骤得到的结果
+2.在确保每条online的carinfo记录的lastActiveDateTime字段都不为空的前提下，修改状态更新查询排序，把lastActiveDateTime做为第一排序
+	则最初的数据为 lastactivedatetime:2013-05-14
 
 [2013-06-02 v0.0.8]
-1.�̻�ץȡʱ�����ֲ����ڵ������������̻������ڣ���ת����ҳ�����˲����ڣ���ʾnotExists.html.����Ϊ1970-01-01
-2.�̻�ץȡʱ��404������retry�м��������������Ϊ1970-01-01
-3.�̻��ֶθ�ʽ�����ҡ�
-4.
+1.商户抓取时，各种不存在的条件，包括商户不存在，跳转到黄页。个人不存在，显示notExists.html.设置为1970-01-01
+2.商户抓取时，404错误用retry中间件来处理。设置为1970-01-01
+3.商户字段格式各种乱。
 
 [2013-05-22 v0.0.7]
-1.pic ȡ����ѯδץȡpic��detailʱ���շ���ʱ������Ĳ�ѯ�������� 
-2.�̻�ץȡʱ�������̻�ҳ����ת����¼ҳ�������ͬʱ���û������ڡ����ó�1970-01-01��
+1.pic 取消查询未抓取pic的detail时按照发布时间排序的查询排序条件 
+2.商户抓取时，存在商户页面跳转到登录页面的现象；同时该用户不存在。设置成1970-01-01年
 
 [2013-05-16 v0.0.6]
-1.�޸�main_seller�в���δ�����bug
-2.ȡ��detailץȡ�У���ѯδץȡdetailʱ����������
-3.����method not allowed��������
-4.��ʵ��������������������ִ��ʱ��
+1.修复main_seller中参数未定义的bug
+2.取消detail抓取中，查询未抓取detail时的排序条件
+3.增加method not allowed条件过滤
+4.按实际情况，调整多进程爬虫执行时间
 
 [2013-05-11 v0.0.5]
-1.�޸�CarInfo��lastactivedatetime���ֶδ�Сд��bug
-2.������ˢ������״̬�Ĺ��ܡ�
-3.�ϲ���settings.py�����޸�main_*.py�ű���single_*.py
+1.修复CarInfo中lastactivedatetime的字段大小写的bug
+2.增加了刷新汽车状态的功能。
+3.合并各settings.py，并修改main_*.py脚本和single_*.py
 
 [2013-05-08 v0.0.4]
-1.�������ݵ�����������ܡ�
-2.�����ַ�����ݳ�ȡ��ΧĿǰ���䣬�ҳ�ȡ��Χֻ֧��declaredateά�ȣ�����Ĭ��Ϊǰһ��
+1.增加数据导出并打包功能。
+2.打包地址及数据抽取范围目前可配，且抽取范围只支持declaredate维度，不填默认为前一天
 
 [2013-05-06 v0.0.3]
-1.��������ϵͳ������û�����ݶ�ץȡ��ͨ������ʱ���sourceurl��ַȥ��
-2.����picץȡģ��
+1.兼容已有系统，对于没个数据都抓取，通过公布时间和sourceurl地址去重
+2.增加pic抓取模块
 
 [2013-05-05 v0.0.2]
-1.�޸�ÿ��ץȡ����Ҫ˯�������bug
-2.����ץȡseller�Ĺ���
-3.����ϵͳ���·���ˢ�·���ʱ��������ϵͳ��Ҫץȡ����ļ�¼��
+1.修复每次抓取后都需要睡若干秒的bug
+2.增加抓取seller的功能
+3.遇到系统重新发布刷新发布时间的情况，系统需要抓取冗余的记录。
 
 [2013-05-04 v0.0.1]
 1.stuff carinfo
-2.�����ƹ��ö����ظ����ӣ���ɾȥ�����ظ���¼
+2.遇到推广置顶的重复链接，将删去该条重复记录

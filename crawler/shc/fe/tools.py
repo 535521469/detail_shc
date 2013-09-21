@@ -551,10 +551,10 @@ def detail_page_parse_4_change_status(parse):
                 else:
                     if contacterphonepicurl:
                         msg = (u'change last active time %s '
-                               '%s %s') % (ci.seqid, ci.sourceurl,last_act_date)
+                               '%s %s') % (ci.seqid, ci.sourceurl, last_act_date)
                     else:
                         msg = (u'offline %s '
-                               '%s %s') % (ci.seqid, ci.sourceurl,last_act_date)
+                               '%s %s') % (ci.seqid, ci.sourceurl, last_act_date)
                     self.log(msg, log.INFO)
                     fs.commit()
                 finally:
@@ -573,29 +573,35 @@ def modify_carinfo(parse):
             os.makedirs(pic_dir)
         
         pic_path = os.sep.join([pic_dir, ci.contacterphonepicname])
+        
         if response.headers['Content-Type'] == u'image/gif':
             
             pic_content = response.body
             
-            m = md5()
-            m.update(pic_content)
-            md5code = m.hexdigest()
-            
-            with open(pic_path, u'wb') as f:
-                f.write(pic_content)
+            if len(response.body) == 0:
+                self.log(u'pick phone pic 0 byte %s' % ci.seqid, log.INFO)
                 
-            try:
-                ci.contacterphonepicmd5 = md5code
-                fs.merge(ci)
-            except Exception as e:
-                fs.rollback()
-                self.log(u'sth wrong pick phone pic %s %s' % (ci.seqid, str(e)), log.CRITICAL)
-                raise e
             else:
-                fs.commit()
-                self.log(u'pick phone pic %s ' % ci.seqid, log.INFO)
-            finally:
-                fs.close()
+            
+                m = md5()
+                m.update(pic_content)
+                md5code = m.hexdigest()
+                
+                with open(pic_path, u'wb') as f:
+                    f.write(pic_content)
+                    
+                try:
+                    ci.contacterphonepicmd5 = md5code
+                    fs.merge(ci)
+                except Exception as e:
+                    fs.rollback()
+                    self.log(u'sth wrong pick phone pic %s %s' % (ci.seqid, str(e)), log.CRITICAL)
+                    raise e
+                else:
+                    fs.commit()
+                    self.log(u'pick phone pic %s ' % ci.seqid, log.INFO)
+                finally:
+                    fs.close()
             
         else:
             self.log(u'get nonbinary response body')
